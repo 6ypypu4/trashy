@@ -1,8 +1,6 @@
 import pygame
-import os
-import random
-import re
 import json
+
 screen_heigth = 640
 screen_width = 640
 pygame.init()
@@ -10,14 +8,24 @@ screen = pygame.display.set_mode((screen_width, screen_heigth))
 clock = pygame.time.Clock()
 done = False
 x = y = 0
-
+Tiles_textures_list = []
+Tiles_collisions_list = []
+Tiles_damages_list = []
 #Основа тайлов:
 class Tile:
     def __init__(self, texture_path, collision=False, damage=0):
+        #global Tiles_textures_list,Tiles_collisions_list,Tiles_damages_list
         self.texture = pygame.image.load(texture_path)
         self.texture = pygame.transform.scale2x(self.texture)
         self.collision = collision
         self.dmg = damage
+        #Внесение характеристик в листы:
+        Tiles_textures_list.append(self.texture)
+        Tiles_collisions_list.append(self.collision)
+        Tiles_damages_list.append(self.dmg)
+
+
+
 #Тайлы:
 class Grass(Tile):
     def __init__(self):
@@ -28,6 +36,8 @@ class Stone(Tile):
 class Lava(Tile):
     def __init__(self):
         super().__init__("resources/surface_sprites/lava.png", False, 10)
+
+
 
 #Основа существ:
 class Entity:
@@ -45,16 +55,17 @@ class Player(Entity):
 with open("resources/levels/level1.json") as f:
     level = json.load(f)
 
+
 def draw_tile(level):
     global screen
-    grass_tile = Grass()
-    stone_tile = Stone()
-    lava_tile = Lava()
-    for y, row in enumerate(level):
-        for x, tile_id in enumerate(row):
-            if level[x][y] == 0: screen.blit(grass_tile.texture, (y*32, x*32))
-            elif level[x][y] == 1: screen.blit(stone_tile.texture, (y*32, x*32))
-            elif level[x][y] == 2: screen.blit(lava_tile.texture, (y*32, x*32))
+    print("Length of level:", len(level))
+    for y in range(len(level)):
+        print("Length of row", y, ":", len(level[y]))
+        for x in range(len(level[y])):
+            print("y:", y, "x:", x)  # Add this line for debugging
+            screen.blit(Tiles_textures_list[level[y][x]], (x * 32, y * 32))
+
+
 
 def draw_player(event):
     global screen, screen_heigth, screen_width
